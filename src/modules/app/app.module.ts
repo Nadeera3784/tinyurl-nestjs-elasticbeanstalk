@@ -7,8 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
 //import { UrlModule } from '../url/url.module';
-import * as path from 'path';
-import { AppEnvironmentEnum } from './enums';
+//import * as path from 'path';
+//import { AppEnvironmentEnum } from './enums';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { AppEnvironmentEnum } from './enums';
       load: [configuration],
       cache: false,
     }),
-    
+
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const appEnvironment = configService.get<string>('app.app_env');
@@ -32,21 +32,18 @@ import { AppEnvironmentEnum } from './enums';
           uri,
         };
 
-        if (appEnvironment === AppEnvironmentEnum.PRODUCTION) {
-          const certPath = path.join(process.cwd(), 'global-bundle.pem');
-          console.log(
-            `Using production MongoDB config with certificate at: ${certPath}`,
-          );
+        // if (appEnvironment === AppEnvironmentEnum.PRODUCTION) {
+        //   const certPath = path.join(process.cwd(), 'global-bundle.pem');
+        //   console.log(
+        //     `Using production MongoDB config with certificate at: ${certPath}`,
+        //   );
 
-          return {
-            ...baseConfig,
-            tls: true,
-            tlsCAFile: certPath,
-            retryWrites: false,
-            replicaSet: 'rs0',
-            readPreference: 'secondaryPreferred',
-          };
-        }
+        //   return {
+        //     ...baseConfig,
+        //     tls: true,
+        //     tlsCAFile: certPath,
+        //   };
+        // }
 
         console.log('Using local MongoDB config');
         return baseConfig;

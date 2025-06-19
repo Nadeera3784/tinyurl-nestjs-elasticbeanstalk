@@ -1,4 +1,4 @@
-import { Module, OnApplicationBootstrap } from '@nestjs/common';
+import { Logger, Module, OnApplicationShutdown } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthService } from './services';
@@ -6,9 +6,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
-//import { UrlModule } from '../url/url.module';
-//import * as path from 'path';
-//import { AppEnvironmentEnum } from './enums';
+import { UrlModule } from '../url/url.module';
+import * as path from 'path';
+import { AppEnvironmentEnum } from './enums';
 
 @Module({
   imports: [
@@ -23,29 +23,17 @@ import { ThrottlerModule } from '@nestjs/throttler';
       useFactory: (configService: ConfigService) => {
         const appEnvironment = configService.get<string>('app.app_env');
         const uri = configService.get<string>('database.mongodb.uri');
-
-        console.log(
-          `MongoDB Configuration - appEnvironment: ${appEnvironment}`,
-        );
-
         const baseConfig = {
           uri,
         };
-
-        // if (appEnvironment === AppEnvironmentEnum.PRODUCTION) {
-        //   const certPath = path.join(process.cwd(), 'global-bundle.pem');
-        //   console.log(
-        //     `Using production MongoDB config with certificate at: ${certPath}`,
-        //   );
-
-        //   return {
-        //     ...baseConfig,
-        //     tls: true,
-        //     tlsCAFile: certPath,
-        //   };
-        // }
-
-        console.log('Using local MongoDB config');
+        if (appEnvironment === AppEnvironmentEnum.PRODUCTION) {
+          const certPath = path.join(process.cwd(), 'global-bundle.pem');
+          return {
+            ...baseConfig,
+            tls: true,
+            tlsCAFile: certPath,
+          };
+        }
         return baseConfig;
       },
       inject: [ConfigService],
@@ -61,14 +49,13 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       inject: [ConfigService],
     }),
-    //UrlModule,
+    UrlModule,
   ],
   controllers: [AppController],
   providers: [AppService, HealthService],
 })
-export class AppModule implements OnApplicationBootstrap {
-  constructor(private readonly healthService: HealthService) {}
-  onApplicationBootstrap() {
-    console.log(this.healthService.getHealthStatus());
+export class AppModule implements OnApplicationShutdown {
+  onApplicationShutdown(signal?: string) {
+    Logger.debug(`Application shut down (signal: ${signal})`);
   }
 }

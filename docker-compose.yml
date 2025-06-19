@@ -32,8 +32,8 @@ services:
       THROTTLER_TTL: 60
       THROTTLER_LIMIT: 100
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/apps/backend
+      - /apps/backend/node_modules
     depends_on:
       - mongodb
     networks:

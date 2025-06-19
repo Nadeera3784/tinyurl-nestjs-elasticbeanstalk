@@ -1,10 +1,10 @@
-name: Production CI/CD Pipeline
+name: Development CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, master]
+    branches: [ dev ]
   pull_request:
-    branches: [ main, master]
+    branches: [ dev ]
 
 jobs:
   test:
@@ -57,7 +57,6 @@ jobs:
         mkdir -p deploy-files deploy-temp
         # Create a clean deployment package with built application and required files
         cp -r dist deploy-temp/
-        cp -r .ebextensions deploy-temp/ 2>/dev/null || true
         cp Procfile deploy-temp/ 2>/dev/null || true
         cp package*.json deploy-temp/
         
@@ -70,19 +69,19 @@ jobs:
     - name: Upload deployment package
       uses: actions/upload-artifact@v4
       with:
-        name: deployment-package
+        name: dev-deployment-package
         path: deploy-files/${{github.run_id}}.zip
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/dev'
     
     steps:
     - name: Download deployment package
       uses: actions/download-artifact@v4
       with:
-        name: deployment-package
+        name: dev-deployment-package
         path: deploy-files/
         
     - name: Configure AWS Credentials
@@ -94,32 +93,32 @@ jobs:
         
     - name: Upload to S3
       run: |
-        aws s3 cp "deploy-files/${{github.run_id}}.zip" s3://elasticbeanstalk-${{ secrets.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}/artifacts/tinyurl/
+        aws s3 cp "deploy-files/${{github.run_id}}.zip" s3://elasticbeanstalk-${{ secrets.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}/artifacts/tinyurl-dev/
         
     - name: Create application version
       run: |
         aws elasticbeanstalk create-application-version \
-          --application-name ${{ secrets.PROD_ELASTIC_BEANSTALK_NAME }} \
-          --version-label ${{github.run_id}} \
-          --description "Deploy from GitHub Actions - ${{github.sha}}" \
-          --source-bundle S3Bucket="elasticbeanstalk-${{ secrets.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="artifacts/tinyurl/${{github.run_id}}.zip"
+          --application-name ${{ secrets.DEV_ELASTIC_BEANSTALK_NAME }} \
+          --version-label dev-${{github.run_id}} \
+          --description "Dev Deploy from GitHub Actions - ${{github.sha}}" \
+          --source-bundle S3Bucket="elasticbeanstalk-${{ secrets.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="artifacts/tinyurl-dev/${{github.run_id}}.zip"
           
     - name: Deploy to Elastic Beanstalk
       run: |
         aws elasticbeanstalk update-environment \
-          --application-name ${{ secrets.PROD_ELASTIC_BEANSTALK_NAME }} \
-          --environment-name ${{ secrets.PROD_ELASTIC_BEANSTALK_ENV_NAME }} \
-          --version-label ${{github.run_id}}
+          --application-name ${{ secrets.DEV_ELASTIC_BEANSTALK_NAME }} \
+          --environment-name ${{ secrets.DEV_ELASTIC_BEANSTALK_ENV_NAME }} \
+          --version-label dev-${{github.run_id}}
           
     - name: Wait for deployment
       run: |
         aws elasticbeanstalk wait environment-updated \
-          --application-name ${{ secrets.PROD_ELASTIC_BEANSTALK_NAME }} \
-          --environment-name ${{ secrets.PROD_ELASTIC_BEANSTALK_ENV_NAME }}
+          --application-name ${{ secrets.DEV_ELASTIC_BEANSTALK_NAME }} \
+          --environment-name ${{ secrets.DEV_ELASTIC_BEANSTALK_ENV_NAME }}
           
     - name: Get deployment status
       run: |
         aws elasticbeanstalk describe-environments \
-          --application-name ${{ secrets.PROD_ELASTIC_BEANSTALK_NAME }} \
-          --environment-names ${{ secrets.PROD_ELASTIC_BEANSTALK_ENV_NAME }} \
-          --query 'Environments[0].Status'
+          --application-name ${{ secrets.DEV_ELASTIC_BEANSTALK_NAME }} \
+          --environment-names ${{ secrets.DEV_ELASTIC_BEANSTALK_ENV_NAME }} \
+          --query 'Environments[0].Status' 

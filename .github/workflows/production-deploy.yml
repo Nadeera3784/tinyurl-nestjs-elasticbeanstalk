@@ -1,0 +1,130 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  ELASTIC_BEANSTALK_NAME: tinyurl
+  ELASTIC_BEANSTALK_ENV_NAME: tinyurl-development-environment
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linter
+      run: npm run lint
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Run e2e tests
+      run: npm run test:e2e
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Create deployment package
+      run: |
+        mkdir -p deploy-files deploy-temp
+        # Create a clean deployment package with built application and required files
+        cp -r dist deploy-temp/
+        cp -r .ebextensions deploy-temp/ 2>/dev/null || true
+        cp Procfile deploy-temp/ 2>/dev/null || true
+        cp package*.json deploy-temp/
+        
+        # Create zip from deployment directory
+        cd deploy-temp
+        zip -r ../deploy-files/${{github.run_id}}.zip . \
+          -x "*.log" \
+          -x ".env*"
+        
+    - name: Upload deployment package
+      uses: actions/upload-artifact@v4
+      with:
+        name: deployment-package
+        path: deploy-files/${{github.run_id}}.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+    - name: Download deployment package
+      uses: actions/download-artifact@v4
+      with:
+        name: deployment-package
+        path: deploy-files/
+        
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        
+    - name: Upload to S3
+      run: |
+        aws s3 cp "deploy-files/${{github.run_id}}.zip" s3://elasticbeanstalk-${{ env.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}/artifacts/tinyurl/
+        
+    - name: Create application version
+      run: |
+        aws elasticbeanstalk create-application-version \
+          --application-name ${{ env.ELASTIC_BEANSTALK_NAME }} \
+          --version-label ${{github.run_id}} \
+          --description "Deploy from GitHub Actions - ${{github.sha}}" \
+          --source-bundle S3Bucket="elasticbeanstalk-${{ env.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="artifacts/tinyurl/${{github.run_id}}.zip"
+          
+    - name: Deploy to Elastic Beanstalk
+      run: |
+        aws elasticbeanstalk update-environment \
+          --application-name ${{ env.ELASTIC_BEANSTALK_NAME }} \
+          --environment-name ${{ env.ELASTIC_BEANSTALK_ENV_NAME }} \
+          --version-label ${{github.run_id}}
+          
+    - name: Wait for deployment
+      run: |
+        aws elasticbeanstalk wait environment-updated \
+          --application-name ${{ env.ELASTIC_BEANSTALK_NAME }} \
+          --environment-name ${{ env.ELASTIC_BEANSTALK_ENV_NAME }}
+          
+    - name: Get deployment status
+      run: |
+        aws elasticbeanstalk describe-environments \
+          --application-name ${{ env.ELASTIC_BEANSTALK_NAME }} \
+          --environment-names ${{ env.ELASTIC_BEANSTALK_ENV_NAME }} \
+          --query 'Environments[0].Status'

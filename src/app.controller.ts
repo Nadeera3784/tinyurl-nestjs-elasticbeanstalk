@@ -1,4 +1,4 @@
-import { Controller, Get, Res, HttpStatus} from '@nestjs/common';
+import { Controller, Get, Res, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
 import { FastifyReply } from 'fastify';
 
@@ -12,9 +12,9 @@ export class AppController {
   }
 
   @Get('/status')
-  getStatus(@Res() response: FastifyReply){
+  getStatus(@Res() response: FastifyReply) {
     return response.status(HttpStatus.OK).send({
-      'status':'ok',
+      status: 'ok',
     });
   }
 }

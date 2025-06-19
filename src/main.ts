@@ -18,6 +18,9 @@ async function bootstrap() {
   return port;
 }
 
-bootstrap().then((port) =>
-  console.log(`App successfully started on port ${port} !`),
-);
+bootstrap()
+  .then((port) => console.log(`App successfully started on port ${port} !`))
+  .catch((error) => {
+    console.error('Failed to start the application:', error);
+    process.exit(1);
+  });

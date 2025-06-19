@@ -16,7 +16,6 @@ FROM node:22-alpine AS production
 
 WORKDIR /usr/src/app
 
-# Install dumb-init for proper signal handling
 RUN apk add --no-cache dumb-init
 
 # Create non-root user

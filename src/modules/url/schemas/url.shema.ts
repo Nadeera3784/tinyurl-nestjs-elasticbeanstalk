@@ -40,8 +40,4 @@ export class Url extends Document {
 
 export const UrlSchema = SchemaFactory.createForClass(Url);
 
-// Create indexes for better performance
-UrlSchema.index({ short_code: 1 }, { unique: true });
-UrlSchema.index({ original_url: 1 });
-UrlSchema.index({ status: 1 });
-UrlSchema.index({ created_at: 1 });
+UrlSchema.index({ short_code: 1 });

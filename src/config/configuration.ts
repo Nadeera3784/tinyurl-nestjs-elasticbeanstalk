@@ -13,7 +13,8 @@ export default () => ({
       uri:
         env.MONGODB_URI ??
         'mongodb://admin:password@mongodb:27017/tinyurl?authSource=admin',
-      is_local: env.MONGODB_IS_LOCAL ?? true,
+      is_local:
+        env.MONGODB_IS_LOCAL === 'true' ? true : env.NODE_ENV !== 'production',
     },
   },
   throttler: {

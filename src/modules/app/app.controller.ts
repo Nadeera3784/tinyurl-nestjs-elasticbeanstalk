@@ -1,10 +1,14 @@
 import { Controller, Get, Res, HttpStatus } from '@nestjs/common';
 import { AppService } from './app.service';
+import { HealthService } from './services';
 import { FastifyReply } from 'fastify';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly healthService: HealthService,
+  ) {}
 
   @Get()
   getHello(): string {
@@ -16,5 +20,10 @@ export class AppController {
     return response.status(HttpStatus.OK).send({
       status: 'ok',
     });
+  }
+
+  @Get('health')
+  getHealth() {
+    return this.healthService.getHealthStatus();
   }
 }

@@ -36,11 +36,36 @@ You need to configure the following secrets in your GitHub repository settings:
 
 ## Elastic Beanstalk Environment Variables
 
-Set follwiongs Environment properties in  Elastic Beanstalk:
+Set following Environment properties in Elastic Beanstalk:
 
+### Required Variables:
 - `NODE_ENV=production`
 - `PORT=8080`
+- `MONGODB_URI=your_mongodb_connection_string`
+- `MONGODB_IS_LOCAL=false`
 
+### MongoDB Connection Options:
+
+#### Option 1: MongoDB Atlas (Recommended)
+```
+MONGODB_URI=mongodb+srv://username:password@your-cluster.mongodb.net/tinyurl?retryWrites=true&w=majority
+```
+
+#### Option 2: AWS DocumentDB
+```
+MONGODB_URI=mongodb://username:password@your-docdb-cluster.cluster-xxxxx.us-east-1.docdb.amazonaws.com:27017/tinyurl?ssl=true&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
+```
+
+### MongoDB Atlas Network Configuration:
+If using MongoDB Atlas, ensure you:
+1. Go to Network Access in MongoDB Atlas
+2. Add `0.0.0.0/0` to IP Access List (or specific AWS region IPs for better security)
+
+### AWS DocumentDB Setup:
+If using AWS DocumentDB, ensure:
+1. DocumentDB cluster is in the same VPC as Elastic Beanstalk
+2. Security groups allow connection on port 27017
+3. The `documentdb-ca-bundle.pem` certificate is included in deployment
 
 ## Pipeline Overview
 

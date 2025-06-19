@@ -9,7 +9,6 @@ on:
 env:
   ELASTIC_BEANSTALK_NAME: tinyurl
   ELASTIC_BEANSTALK_ENV_NAME: tinyurl-development-environment
-  AWS_REGION: us-east-1
 
 jobs:
   test:
@@ -93,13 +92,13 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ secrets.AWS_REGION }}
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         
     - name: Upload to S3
       run: |
-        aws s3 cp "deploy-files/${{github.run_id}}.zip" s3://elasticbeanstalk-${{ env.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}/artifacts/tinyurl/
+        aws s3 cp "deploy-files/${{github.run_id}}.zip" s3://elasticbeanstalk-${{ secrets.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}/artifacts/tinyurl/
         
     - name: Create application version
       run: |
@@ -107,7 +106,7 @@ jobs:
           --application-name ${{ env.ELASTIC_BEANSTALK_NAME }} \
           --version-label ${{github.run_id}} \
           --description "Deploy from GitHub Actions - ${{github.sha}}" \
-          --source-bundle S3Bucket="elasticbeanstalk-${{ env.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="artifacts/tinyurl/${{github.run_id}}.zip"
+          --source-bundle S3Bucket="elasticbeanstalk-${{ secrets.AWS_REGION }}-${{ secrets.AWS_ACCOUNT_ID }}",S3Key="artifacts/tinyurl/${{github.run_id}}.zip"
           
     - name: Deploy to Elastic Beanstalk
       run: |

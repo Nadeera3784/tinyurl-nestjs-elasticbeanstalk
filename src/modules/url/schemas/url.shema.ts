@@ -5,7 +5,6 @@ import { UrlStatusEnum } from '../enums';
 
 @Schema({
   versionKey: false,
-  autoIndex: true,
   timestamps: true,
 })
 export class Url extends Document {

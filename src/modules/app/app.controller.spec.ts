@@ -14,8 +14,6 @@ describe('AppController', () => {
         .mockImplementation((key: string): string | number | boolean => {
           const config: Record<string, string | number | boolean> = {
             'app.app_name': 'tinyurl',
-            'app.app_port': 8080,
-            'database.mongodb.is_local': true,
             'throttler.ttl': 60,
             'throttler.limit': 10,
           };
@@ -52,8 +50,6 @@ describe('AppController', () => {
       expect(result).toHaveProperty('environment');
       expect(result).toHaveProperty('config');
       expect(result.config).toHaveProperty('app_name', 'tinyurl');
-      expect(result.config).toHaveProperty('app_port', 8080);
-      expect(result.config).toHaveProperty('mongodb_is_local', true);
       expect(result.config).toHaveProperty('throttler_ttl', 60);
       expect(result.config).toHaveProperty('throttler_limit', 10);
     });

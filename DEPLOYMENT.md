@@ -42,7 +42,8 @@ Set following Environment properties in Elastic Beanstalk:
 - `NODE_ENV=production`
 - `PORT=8080`
 - `MONGODB_URI=your_mongodb_connection_string`
-- `MONGODB_IS_LOCAL=false`
+- `THROTTLER_LIMIT=10`
+- `THROTTLER_TTL=60`
 
 ### MongoDB Connection Options:
 

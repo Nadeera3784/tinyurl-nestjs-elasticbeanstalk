@@ -1,8 +1,8 @@
 {
   "name": "tinyurl",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "URL shortener",
+  "author": "Nadeera Sampath",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -17,7 +17,10 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:unit": "jest --testPathPattern=src",
+    "test:integration": "jest --testPathPattern=test --testNamePattern=\"^((?!e2e).)*$\"",
+    "test:all": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -71,8 +74,15 @@
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.(t|j)s$": ["ts-jest", {
+        "useESM": true
+      }]
     },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(nanoid)/)"
+    ],
+    "preset": "ts-jest/presets/default-esm",
+    "extensionsToTreatAsEsm": [".ts"],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],

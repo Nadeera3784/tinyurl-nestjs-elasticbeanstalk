@@ -7,7 +7,6 @@ const env: NodeJS.ProcessEnv = process.env;
 export default () => ({
   app: {
     app_name: env.APP_NAME ?? 'tinyurl',
-    app_port: env.APP_PORT ?? 8080,
     app_env: env.NODE_ENV ?? AppEnvironmentEnum.DEVELOPMENT,
   },
   database: {

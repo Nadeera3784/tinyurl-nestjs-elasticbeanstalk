@@ -53,30 +53,17 @@ describe('AppController (e2e)', () => {
       .expect('Hello World!');
   });
 
-  it('/health (GET)', () => {
-    return request(app.getHttpServer())
+  it('/health (GET)', async () => {
+    const response = await request(app.getHttpServer())
       .get('/health')
-      .expect(200)
-      .expect((res) => {
-        const body = res.body as {
-          status: string;
-          timestamp: string;
-          environment: string;
-          config: {
-            app_name: string;
-            app_port: number;
-            mongodb_is_local: boolean;
-            throttler_ttl: number;
-            throttler_limit: number;
-          };
-        };
-        expect(body).toHaveProperty('status', 'ok');
-        expect(body).toHaveProperty('timestamp');
-        expect(body).toHaveProperty('environment');
-        expect(body).toHaveProperty('config');
-        expect(body.config).toHaveProperty('app_name');
-        expect(body.config).toHaveProperty('app_port');
-        expect(body.config).toHaveProperty('mongodb_is_local');
-      });
+      .expect(200);
+
+    expect(response.body).toHaveProperty('status', 'ok');
+    expect(response.body).toHaveProperty('timestamp');
+    expect(response.body).toHaveProperty('environment');
+    expect(response.body).toHaveProperty('config');
+    expect(response.body.config).toHaveProperty('app_name');
+    expect(response.body.config).toHaveProperty('throttler_ttl');
+    expect(response.body.config).toHaveProperty('throttler_limit');
   });
 });

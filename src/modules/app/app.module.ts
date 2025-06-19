@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthService } from './services';
@@ -72,4 +72,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
   controllers: [AppController],
   providers: [AppService, HealthService],
 })
-export class AppModule {}
+export class AppModule implements OnApplicationBootstrap {
+  constructor(private readonly healthService: HealthService) {}
+  onApplicationBootstrap() {
+    console.log(this.healthService.getHealthStatus());
+  }
+}

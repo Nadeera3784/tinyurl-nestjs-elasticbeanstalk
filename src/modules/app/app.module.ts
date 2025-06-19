@@ -18,7 +18,7 @@ import { AppEnvironmentEnum } from './enums';
       load: [configuration],
       cache: false,
     }),
-
+    
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const appEnvironment = configService.get<string>('app.app_env');
@@ -43,8 +43,8 @@ import { AppEnvironmentEnum } from './enums';
 
           return {
             ...baseConfig,
-            tls: true,
-            tlsCAFile: certPath,
+            //ssl: true,
+            //sslCA: certPath,
             retryWrites: false,
             replicaSet: 'rs0',
             readPreference: 'secondaryPreferred',

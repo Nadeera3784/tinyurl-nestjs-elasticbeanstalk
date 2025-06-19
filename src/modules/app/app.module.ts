@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthService } from './services';
-import { MongooseModule } from '@nestjs/mongoose';
+//import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { UrlModule } from '../url/url.module';
-import * as path from 'path';
+//import { UrlModule } from '../url/url.module';
+//import * as path from 'path';
 
 @Module({
   imports: [
@@ -17,6 +17,7 @@ import * as path from 'path';
       load: [configuration],
       cache: false,
     }),
+    /*
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
         const isLocal = configService.get<boolean>('database.mongodb.is_local');
@@ -54,6 +55,7 @@ import * as path from 'path';
       },
       inject: [ConfigService],
     }),
+    */
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         throttlers: [
@@ -65,7 +67,7 @@ import * as path from 'path';
       }),
       inject: [ConfigService],
     }),
-    UrlModule,
+    //UrlModule,
   ],
   controllers: [AppController],
   providers: [AppService, HealthService],

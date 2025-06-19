@@ -2,16 +2,25 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthService } from './services';
-import { getConnectionToken } from '@nestjs/mongoose';
+import { ConfigService } from '@nestjs/config';
 
 describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
-    const mockConnection = {
-      readyState: 1,
-      host: 'localhost',
-      name: 'test-db',
+    const mockConfigService = {
+      get: jest
+        .fn()
+        .mockImplementation((key: string): string | number | boolean => {
+          const config: Record<string, string | number | boolean> = {
+            'app.app_name': 'tinyurl',
+            'app.app_port': 8080,
+            'database.mongodb.is_local': true,
+            'throttler.ttl': 60,
+            'throttler.limit': 10,
+          };
+          return config[key];
+        }),
     };
 
     const app: TestingModule = await Test.createTestingModule({
@@ -20,8 +29,8 @@ describe('AppController', () => {
         AppService,
         HealthService,
         {
-          provide: getConnectionToken(),
-          useValue: mockConnection,
+          provide: ConfigService,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
@@ -39,9 +48,14 @@ describe('AppController', () => {
     it('should return health status', () => {
       const result = appController.getHealth();
       expect(result).toHaveProperty('status', 'ok');
-      expect(result).toHaveProperty('database');
-      expect(result.database).toHaveProperty('connected', true);
-      expect(result.database).toHaveProperty('state', 'connected');
+      expect(result).toHaveProperty('timestamp');
+      expect(result).toHaveProperty('environment');
+      expect(result).toHaveProperty('config');
+      expect(result.config).toHaveProperty('app_name', 'tinyurl');
+      expect(result.config).toHaveProperty('app_port', 8080);
+      expect(result.config).toHaveProperty('mongodb_is_local', true);
+      expect(result.config).toHaveProperty('throttler_ttl', 60);
+      expect(result.config).toHaveProperty('throttler_limit', 10);
     });
   });
 });

@@ -60,18 +60,23 @@ describe('AppController (e2e)', () => {
       .expect((res) => {
         const body = res.body as {
           status: string;
-          database: {
-            connected: boolean;
-            state: string;
-            host: string;
-            name: string;
-          };
           timestamp: string;
           environment: string;
+          config: {
+            app_name: string;
+            app_port: number;
+            mongodb_is_local: boolean;
+            throttler_ttl: number;
+            throttler_limit: number;
+          };
         };
         expect(body).toHaveProperty('status', 'ok');
-        expect(body).toHaveProperty('database');
-        expect(body.database).toHaveProperty('connected', true);
+        expect(body).toHaveProperty('timestamp');
+        expect(body).toHaveProperty('environment');
+        expect(body).toHaveProperty('config');
+        expect(body.config).toHaveProperty('app_name');
+        expect(body.config).toHaveProperty('app_port');
+        expect(body.config).toHaveProperty('mongodb_is_local');
       });
   });
 });

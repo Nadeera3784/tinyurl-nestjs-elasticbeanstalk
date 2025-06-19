@@ -43,8 +43,8 @@ import { AppEnvironmentEnum } from './enums';
 
           return {
             ...baseConfig,
-            ssl: true,
-            sslCA: certPath,
+            tls: true,
+            tlsCAFile: certPath,
             retryWrites: false,
             replicaSet: 'rs0',
             readPreference: 'secondaryPreferred',

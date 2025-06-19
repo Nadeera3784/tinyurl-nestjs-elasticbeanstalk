@@ -3,8 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from './config/configuration';
+import configuration from '../../config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { UrlModule } from '../url/url.module';
 
 @Module({
   imports: [
@@ -20,8 +21,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
         const baseConfig = {
           uri: configService.get<string>('database.mongodb.uri'),
         };
-        
-        // DocumentDB specific configuration
         if (!isLocal) {
           return {
             ...baseConfig,
@@ -32,7 +31,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
             readPreference: 'secondaryPreferred',
           };
         }
-        
         return baseConfig;
       },
       inject: [ConfigService],
@@ -48,6 +46,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       }),
       inject: [ConfigService],
     }),
+    UrlModule,
   ],
   controllers: [AppController],
   providers: [AppService],

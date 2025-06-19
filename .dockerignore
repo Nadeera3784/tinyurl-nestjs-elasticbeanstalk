@@ -1,0 +1,60 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist
+build
+coverage
+
+# Environment files
+.env*
+!.env.example
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+docs
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# CI/CD
+.github
+
+# Logs
+logs
+*.log
+
+# Temporary files
+.tmp
+.temp
+
+# Test files
+test
+**/*.spec.ts
+**/*.test.ts
+
+# SSL certificates (will be downloaded in container if needed)
+*.pem
+
+# Scripts (not needed in container)
+scripts 

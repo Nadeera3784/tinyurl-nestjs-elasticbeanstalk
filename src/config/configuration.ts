@@ -10,7 +10,9 @@ export default () => ({
   },
   database: {
     mongodb: {
-      uri: env.MONGODB_URI ?? 'mongodb://localhost:27017/tinyurl',
+      uri:
+        env.MONGODB_URI ??
+        'mongodb://admin:password@mongodb:27017/tinyurl?authSource=admin',
       is_local: env.MONGODB_IS_LOCAL ?? true,
     },
   },

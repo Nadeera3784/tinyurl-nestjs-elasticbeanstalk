@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: tinyurl-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: tinyurl
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - tinyurl-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tinyurl-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password@mongodb:27017/tinyurl?authSource=admin
+      MONGODB_IS_LOCAL: true
+      THROTTLER_TTL: 60
+      THROTTLER_LIMIT: 100
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongodb
+    networks:
+      - tinyurl-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  tinyurl-network:
+    driver: bridge 

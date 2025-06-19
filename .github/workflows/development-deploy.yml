@@ -59,6 +59,7 @@ jobs:
         cp -r dist deploy-temp/
         cp Procfile deploy-temp/ 2>/dev/null || true
         cp package*.json deploy-temp/
+        cp documentdb-ca-bundle.pem deploy-temp/ 2>/dev/null || true
         
         # Create zip from deployment directory
         cd deploy-temp

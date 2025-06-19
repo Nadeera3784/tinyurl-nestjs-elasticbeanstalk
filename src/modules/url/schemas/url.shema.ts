@@ -40,4 +40,5 @@ export class Url extends Document {
 
 export const UrlSchema = SchemaFactory.createForClass(Url);
 
-UrlSchema.index({ short_code: 1 });
+UrlSchema.index({ original_url: 1 });
+UrlSchema.index({ status: 1 });

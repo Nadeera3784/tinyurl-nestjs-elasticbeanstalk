@@ -2,12 +2,13 @@ import { Module, OnApplicationBootstrap } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthService } from './services';
-//import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../../config/configuration';
 import { ThrottlerModule } from '@nestjs/throttler';
 //import { UrlModule } from '../url/url.module';
-//import * as path from 'path';
+import * as path from 'path';
+import { AppEnvironmentEnum } from './enums';
 
 @Module({
   imports: [
@@ -17,14 +18,14 @@ import { ThrottlerModule } from '@nestjs/throttler';
       load: [configuration],
       cache: false,
     }),
-    /*
+
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => {
-        const isLocal = configService.get<boolean>('database.mongodb.is_local');
+        const appEnvironment = configService.get<string>('app.app_env');
         const uri = configService.get<string>('database.mongodb.uri');
 
         console.log(
-          `MongoDB Configuration - isLocal: ${isLocal}, NODE_ENV: ${process.env.NODE_ENV}`,
+          `MongoDB Configuration - appEnvironment: ${appEnvironment}`,
         );
 
         const baseConfig = {
@@ -34,7 +35,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
           socketTimeoutMS: 45000,
         };
 
-        if (!isLocal) {
+        if (appEnvironment === AppEnvironmentEnum.PRODUCTION) {
           const certPath = path.join(process.cwd(), 'documentdb-ca-bundle.pem');
           console.log(
             `Using production MongoDB config with certificate at: ${certPath}`,
@@ -55,7 +56,6 @@ import { ThrottlerModule } from '@nestjs/throttler';
       },
       inject: [ConfigService],
     }),
-    */
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         throttlers: [

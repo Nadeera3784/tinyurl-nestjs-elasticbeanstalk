@@ -9,7 +9,7 @@ export class HealthService {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
+      environment: this.configService.get<string>('app.app_name'),
       config: {
         app_name: this.configService.get<string>('app.app_name'),
         app_port: this.configService.get<number>('app.app_port'),

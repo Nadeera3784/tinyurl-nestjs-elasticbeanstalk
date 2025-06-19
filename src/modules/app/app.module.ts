@@ -30,24 +30,19 @@ import { AppEnvironmentEnum } from './enums';
 
         const baseConfig = {
           uri,
-          maxPoolSize: 10,
-          serverSelectionTimeoutMS: 30000,
-          socketTimeoutMS: 45000,
         };
 
         if (appEnvironment === AppEnvironmentEnum.PRODUCTION) {
-          const certPath = path.join(process.cwd(), 'documentdb-ca-bundle.pem');
+          const certPath = path.join(process.cwd(), 'global-bundle.pem');
           console.log(
             `Using production MongoDB config with certificate at: ${certPath}`,
           );
 
           return {
             ...baseConfig,
-            //ssl: true,
-            //sslCA: certPath,
-            retryWrites: false,
-            replicaSet: 'rs0',
-            readPreference: 'secondaryPreferred',
+            ssl: true,
+            sslCA: certPath,
+            sslValidate: false,
           };
         }
 
